@@ -9,10 +9,11 @@ from tkinter import filedialog
 from PyQt5.QtCore import Qt
 
 ###### Issues to work on ######
-#Why is ico not working?
 # get pyinstaller to work ( Some required 
 # modules, shared libs or data files are not frozen (packaged, bundled) into the resulting exec)
 #Loading module hook 'hook-PyQt5.p
+# had to get pyQy5, then get python3 dev
+#now getting stuck in Building COLLECT COLLECT-00.toc
 # open csv
 
 root = tk.Tk()
@@ -37,12 +38,21 @@ def open_csv():
     csv =filedialog.askopenfilename()
     os.system(csv)
 
+def get_release_list(filename='release.txt'):
+    try:
+        with open(filename) as f:
+            file = f.read()
+        record_list = file.split()
+    except FileNotFoundError:
+        record_list = None 
+
+    return record_list
+
+
 #Label Generator
 def run_label():
-    with open('release.txt') as f:
-         file = f.read()
-    # convert string to list of release ids
-    record_list = file.split()
+
+    record_list = get_release_list('release.txt')
 
     # define url to request release id informtion
     app_url = 'https://api.discogs.com/releases/'
@@ -81,6 +91,10 @@ def run_label():
         # country
         country = resp_json['country']
 
+        styles = resp_json.get('styles')
+        if not styles:
+            styles = resp.get('genres')
+
         # put data in dictionary
         record_data = {'record_id':[record_id],
                   'artist': [artist],
@@ -88,7 +102,9 @@ def run_label():
                   'label': [label],
                   'format': [format_type],
                   'year': [year],
-                  'country': [country]}
+                  'country': [country],
+                  'styles': ['// '.join(styles)]
+                  }
      
          # convert dictionary into DataFrame
         df = pd.DataFrame.from_dict(record_data)
@@ -102,6 +118,7 @@ def run_label():
             master_df = pd.concat([master_df, df])
         
         master_df.to_csv('test.csv')
+ 
 
 
 
