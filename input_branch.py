@@ -11,9 +11,6 @@ from PyQt5.QtCore import Qt
 ###### Issues to work on ######
 # get pyinstaller to work ( Some required 
 # modules, shared libs or data files are not frozen (packaged, bundled) into the resulting exec)
-#Loading module hook 'hook-PyQt5.p
-# had to get pyQy5, then get python3 dev
-#now getting stuck in Building COLLECT COLLECT-00.toc
 # open csv
 
 root = tk.Tk()
@@ -32,11 +29,10 @@ def save_info():
     file.close()
 
 
-#open csv
+#open csv and remove stored release info
 def open_csv():
     os.remove("release.txt")
-    csv =filedialog.askopenfilename()
-    os.system(csv)
+    
 
 def get_release_list(filename='release.txt'):
     try:
@@ -48,19 +44,17 @@ def get_release_list(filename='release.txt'):
 
     return record_list
 
+# define url to request release id informtion
+app_url = 'https://api.discogs.com/releases'
+
+# create a DataFrame to put release ids into
+master_df = pd.DataFrame()
 
 #Label Generator
 def run_label():
 
     record_list = get_release_list('release.txt')
 
-    # define url to request release id informtion
-    app_url = 'https://api.discogs.com/releases/'
-
-    # create a DataFrame to put release ids into
-    master_df = pd.DataFrame()
-
-    # for each release id in record list
     for record_id in record_list:
         record_id = str(record_id)
 
@@ -120,6 +114,8 @@ def run_label():
         master_df.to_csv('test.csv')
  
 
+  
+
 
 
 heading = Label(text="Enter the release id's bellow", bg ='#3492eb', fg='white', font='10', width='600', height='3')
@@ -132,7 +128,7 @@ id_text.pack()
 button_frame = Frame(root)
 button_frame.pack()
 
-save_releases =tk.Button(root, text="Upload Id's", fg="white", bg="#3492eb", command= save_info)
+save_releases =tk.Button(root, text="Upload Id's", fg="white", bg="#3492eb", command=  save_info)
 save_releases.pack(fill = X)
 
 
